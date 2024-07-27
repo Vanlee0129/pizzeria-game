@@ -3,76 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>壹杆烘焙店</title>
+    <title>甜心烘焙店</title>
     <style>
         body {
-            font-family: 'Comic Sans MS', cursive, sans-serif;
+            font-family: 'Arial', sans-serif;
             background-color: #FFE4E1;
             margin: 0;
-            padding: 0;
+            padding: 10px;
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
+            min-height: 100vh;
         }
         #game-container {
             background-color: #FFF0F5;
-            border: 5px solid #FF69B4;
+            border: 3px solid #FF69B4;
             border-radius: 15px;
-            padding: 20px;
-            width: 800px;
+            padding: 15px;
+            width: 100%;
+            max-width: 600px;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
         h1 {
             color: #FF1493;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            font-size: 24px;
         }
         .section {
             background-color: #FFF;
             border: 2px solid #FFB6C1;
             border-radius: 10px;
             padding: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .section h2 {
             color: #FF69B4;
             margin-top: 0;
+            font-size: 18px;
         }
         .resource {
             display: inline-block;
-            margin-right: 20px;
+            margin-right: 10px;
+            margin-bottom: 5px;
             font-weight: bold;
+            font-size: 14px;
         }
         button {
             background-color: #FF69B4;
             color: white;
             border: none;
-            padding: 10px 15px;
-            margin: 5px;
+            padding: 10px;
+            margin: 5px 0;
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
+            width: 100%;
+            font-size: 16px;
         }
         button:hover {
             background-color: #FF1493;
         }
         #orders {
             display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
+            flex-direction: column;
         }
         .order {
             background-color: #FFF0F5;
             border: 2px solid #FFB6C1;
             border-radius: 10px;
             padding: 10px;
-            width: 30%;
+            margin-bottom: 10px;
         }
         #status {
             text-align: center;
             font-weight: bold;
             color: #FF1493;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -108,19 +114,23 @@
         </div>
         
         <div class="section" id="orders">
+            <h2>订单</h2>
             <div class="order">
                 <h3>订单 1</h3>
-                <p>🍪 饼干 x2</p>
+                <p>🍪 饼干 x<span id="order1-cookies">2</span></p>
+                <p>🎂 蛋糕 x<span id="order1-cake">0</span></p>
                 <button onclick="fulfillOrder(0)">完成订单</button>
             </div>
             <div class="order">
                 <h3>订单 2</h3>
-                <p>🎂 蛋糕 x1</p>
+                <p>🍪 饼干 x<span id="order2-cookies">0</span></p>
+                <p>🎂 蛋糕 x<span id="order2-cake">1</span></p>
                 <button onclick="fulfillOrder(1)">完成订单</button>
             </div>
             <div class="order">
                 <h3>订单 3</h3>
-                <p>🍪 饼干 x1<br>🎂 蛋糕 x1</p>
+                <p>🍪 饼干 x<span id="order3-cookies">1</span></p>
+                <p>🎂 蛋糕 x<span id="order3-cake">1</span></p>
                 <button onclick="fulfillOrder(2)">完成订单</button>
             </div>
         </div>
@@ -223,14 +233,10 @@
         }
 
         function updateOrderDisplay() {
-            let orderElements = document.getElementsByClassName('order');
-            for (let i = 0; i < orderElements.length; i++) {
+            for (let i = 0; i < orders.length; i++) {
                 let order = orders[i];
-                let orderHTML = `<h3>订单 ${i+1}</h3>`;
-                if (order.cookies > 0) orderHTML += `<p>🍪 饼干 x${order.cookies}</p>`;
-                if (order.cake > 0) orderHTML += `<p>🎂 蛋糕 x${order.cake}</p>`;
-                orderHTML += `<button onclick="fulfillOrder(${i})">完成订单</button>`;
-                orderElements[i].innerHTML = orderHTML;
+                document.getElementById(`order${i+1}-cookies`).textContent = order.cookies;
+                document.getElementById(`order${i+1}-cake`).textContent = order.cake;
             }
         }
 
