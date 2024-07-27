@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>壹杆烘焙店</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #FFE4E1;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #game-container {
+            background-color: #FFF0F5;
+            border: 5px solid #FF69B4;
+            border-radius: 15px;
+            padding: 20px;
+            width: 800px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #FF1493;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .section {
+            background-color: #FFF;
+            border: 2px solid #FFB6C1;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            color: #FF69B4;
+            margin-top: 0;
+        }
+        .resource {
+            display: inline-block;
+            margin-right: 20px;
+            font-weight: bold;
+        }
+        button {
+            background-color: #FF69B4;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #FF1493;
+        }
+        #orders {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .order {
+            background-color: #FFF0F5;
+            border: 2px solid #FFB6C1;
+            border-radius: 10px;
+            padding: 10px;
+            width: 30%;
+        }
+        #status {
+            text-align: center;
+            font-weight: bold;
+            color: #FF1493;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>🧁 甜心烘焙店 🍰</h1>
+        
+        <div class="section" id="resources">
+            <h2>资源</h2>
+            <div class="resource">💰 金钱: <span id="money">100</span></div>
+            <div class="resource">🌾 面粉: <span id="flour">0</span>kg</div>
+            <div class="resource">🍬 糖: <span id="sugar">0</span>kg</div>
+            <div class="resource">🧈 黄油: <span id="butter">0</span>kg</div>
+        </div>
+        
+        <div class="section">
+            <h2>购买原料</h2>
+            <button onclick="buy('flour')">购买面粉 (10元/kg)</button>
+            <button onclick="buy('sugar')">购买糖 (5元/kg)</button>
+            <button onclick="buy('butter')">购买黄油 (8元/kg)</button>
+        </div>
+        
+        <div class="section">
+            <h2>制作产品</h2>
+            <button onclick="bake('cookies')">制作饼干 🍪</button>
+            <button onclick="bake('cake')">制作蛋糕 🎂</button>
+        </div>
+        
+        <div class="section">
+            <h2>库存</h2>
+            <div class="resource">🍪 饼干: <span id="cookies">0</span></div>
+            <div class="resource">🎂 蛋糕: <span id="cake">0</span></div>
+        </div>
+        
+        <div class="section" id="orders">
+            <div class="order">
+                <h3>订单 1</h3>
+                <p>🍪 饼干 x2</p>
+                <button onclick="fulfillOrder(0)">完成订单</button>
+            </div>
+            <div class="order">
+                <h3>订单 2</h3>
+                <p>🎂 蛋糕 x1</p>
+                <button onclick="fulfillOrder(1)">完成订单</button>
+            </div>
+            <div class="order">
+                <h3>订单 3</h3>
+                <p>🍪 饼干 x1<br>🎂 蛋糕 x1</p>
+                <button onclick="fulfillOrder(2)">完成订单</button>
+            </div>
+        </div>
+        
+        <div id="status"></div>
+    </div>
+
+    <script>
+        let resources = {
+            money: 100,
+            flour: 0,
+            sugar: 0,
+            butter: 0,
+            cookies: 0,
+            cake: 0
+        };
+
+        const prices = {
+            flour: 10,
+            sugar: 5,
+            butter: 8,
+            cookies: 15,
+            cake: 30
+        };
+
+        const recipes = {
+            cookies: {flour: 0.2, sugar: 0.1, butter: 0.1},
+            cake: {flour: 0.5, sugar: 0.3, butter: 0.2}
+        };
+
+        const orders = [
+            {cookies: 2, cake: 0, reward: 40},
+            {cookies: 0, cake: 1, reward: 45},
+            {cookies: 1, cake: 1, reward: 60}
+        ];
+
+        function updateDisplay() {
+            for (let resource in resources) {
+                let element = document.getElementById(resource);
+                if (element) {
+                    element.textContent = resources[resource];
+                }
+            }
+        }
+
+        function buy(ingredient) {
+            if (resources.money >= prices[ingredient]) {
+                resources[ingredient]++;
+                resources.money -= prices[ingredient];
+                updateDisplay();
+                setStatus(`购买了1kg ${ingredient}`);
+            } else {
+                setStatus("资金不足！");
+            }
+        }
+
+        function bake(product) {
+            let recipe = recipes[product];
+            let canBake = true;
+            for (let ingredient in recipe) {
+                if (resources[ingredient] < recipe[ingredient]) {
+                    canBake = false;
+                    break;
+                }
+            }
+            if (canBake) {
+                for (let ingredient in recipe) {
+                    resources[ingredient] -= recipe[ingredient];
+                }
+                resources[product]++;
+                updateDisplay();
+                setStatus(`制作了1个 ${product}`);
+            } else {
+                setStatus("原料不足！");
+            }
+        }
+
+        function fulfillOrder(orderIndex) {
+            let order = orders[orderIndex];
+            if (resources.cookies >= order.cookies && resources.cake >= order.cake) {
+                resources.cookies -= order.cookies;
+                resources.cake -= order.cake;
+                resources.money += order.reward;
+                updateDisplay();
+                setStatus(`完成订单，获得 ${order.reward} 元！`);
+                generateNewOrder(orderIndex);
+            } else {
+                setStatus("库存不足，无法完成订单！");
+            }
+        }
+
+        function generateNewOrder(orderIndex) {
+            let newOrder = {
+                cookies: Math.floor(Math.random() * 3),
+                cake: Math.floor(Math.random() * 2),
+            };
+            newOrder.reward = newOrder.cookies * prices.cookies + newOrder.cake * prices.cake + 10;
+            orders[orderIndex] = newOrder;
+            updateOrderDisplay();
+        }
+
+        function updateOrderDisplay() {
+            let orderElements = document.getElementsByClassName('order');
+            for (let i = 0; i < orderElements.length; i++) {
+                let order = orders[i];
+                let orderHTML = `<h3>订单 ${i+1}</h3>`;
+                if (order.cookies > 0) orderHTML += `<p>🍪 饼干 x${order.cookies}</p>`;
+                if (order.cake > 0) orderHTML += `<p>🎂 蛋糕 x${order.cake}</p>`;
+                orderHTML += `<button onclick="fulfillOrder(${i})">完成订单</button>`;
+                orderElements[i].innerHTML = orderHTML;
+            }
+        }
+
+        function setStatus(message) {
+            document.getElementById('status').textContent = message;
+        }
+
+        updateDisplay();
+        updateOrderDisplay();
+    </script>
+</body>
+</html>
